@@ -4,14 +4,116 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Streamer Simulator</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%230e0e10' width='100' height='100'/><circle cx='50' cy='35' r='20' fill='%239147ff'/><path d='M30 60 L50 75 L70 60 Z' fill='%239147ff'/><text x='50' y='90' font-size='20' font-weight='bold' text-anchor='middle' fill='%23ff9f0a'>S</text></svg>">
   <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
     body {
       font-family: 'Inter', system-ui, sans-serif;
       background: #0e0e10;
-      margin: 0;
-      padding: 0;
       color: #efeff1;
     }
+
+    /* HOME SCREEN */
+    #home-screen {
+      width: 100vw;
+      height: 100vh;
+      background: linear-gradient(135deg, #0e0e10 0%, #1a1a20 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 30px;
+      padding: 20px;
+      z-index: 100;
+      position: fixed;
+      top: 0;
+      left: 0;
+    }
+
+    #home-screen.hidden {
+      display: none;
+    }
+
+    .home-icon {
+      font-size: 80px;
+      animation: bounce 2s infinite;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-20px); }
+    }
+
+    .home-title {
+      font-size: 42px;
+      font-weight: 800;
+      background: linear-gradient(135deg, #9147ff, #ff9f0a);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-align: center;
+      line-height: 1.2;
+    }
+
+    .home-subtitle {
+      font-size: 14px;
+      color: #adadb8;
+      text-align: center;
+      max-width: 300px;
+      line-height: 1.6;
+    }
+
+    .home-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      width: 100%;
+      max-width: 280px;
+    }
+
+    .home-btn {
+      padding: 14px 24px;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+    }
+
+    .home-btn-primary {
+      background: linear-gradient(135deg, #9147ff, #7a35e8);
+      color: white;
+      box-shadow: 0 4px 20px rgba(145, 71, 255, 0.4);
+    }
+
+    .home-btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 25px rgba(145, 71, 255, 0.6);
+    }
+
+    .home-btn-primary:active {
+      transform: translateY(0);
+    }
+
+    .home-btn-secondary {
+      background: transparent;
+      color: #adadb8;
+      border: 2px solid #2a2a2e;
+    }
+
+    .home-btn-secondary:hover {
+      border-color: #9147ff;
+      color: #9147ff;
+    }
+
+    /* GAME SCREEN */
     .game-container {
       max-width: 430px;
       margin: 0 auto;
@@ -20,7 +122,13 @@
       position: relative;
       overflow-x: hidden;
       box-sizing: border-box;
+      display: none;
     }
+
+    .game-container.active {
+      display: block;
+    }
+
     /* Header */
     .header {
       background: #18181b;
@@ -30,7 +138,7 @@
       justify-content: space-between;
       border-bottom: 1px solid #2a2a2e;
     }
-    .logo { font-weight: 800; fontSize: 15px; color: #9147ff; }
+    .logo { font-weight: 800; font-size: 15px; color: #9147ff; }
     .header-right { display: flex; align-items: center; gap: 8px; }
     .live-dot {
       width: 7px; height: 7px; border-radius: 50%; background: #eb0400;
@@ -40,6 +148,7 @@
     .live-time { font-size: 11px; color: #adadb8; display: none; }
     .prestige-badge { font-size: 11px; color: #ff9f0a; font-weight: 700; display: none; }
     .sound-btn { background: none; border: none; cursor: pointer; font-size: 16px; color: #efeff1; }
+    .menu-btn { background: none; border: none; cursor: pointer; font-size: 16px; color: #efeff1; }
 
     /* Content Layout */
     .content { padding: 10px; display: flex; flex-direction: column; gap: 8px; }
@@ -169,6 +278,83 @@
       display: none; margin-top: 10px;
     }
 
+    /* Menu Modal */
+    .menu-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.8);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+    }
+
+    .menu-modal.active {
+      display: flex;
+    }
+
+    .menu-content {
+      background: #18181b;
+      border-radius: 12px;
+      padding: 30px;
+      max-width: 300px;
+      text-align: center;
+      border: 1px solid #2a2a2e;
+    }
+
+    .menu-title {
+      font-size: 20px;
+      font-weight: 800;
+      margin-bottom: 20px;
+      color: #9147ff;
+    }
+
+    .menu-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .menu-btn-item {
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .menu-continue {
+      background: #9147ff;
+      color: white;
+    }
+
+    .menu-continue:hover {
+      background: #7a35e8;
+    }
+
+    .menu-new {
+      background: #30d158;
+      color: white;
+    }
+
+    .menu-new:hover {
+      background: #26a038;
+    }
+
+    .menu-cancel {
+      background: #2a2a2e;
+      color: #adadb8;
+    }
+
+    .menu-cancel:hover {
+      background: #3a3a3f;
+    }
+
     /* Keyframe Animations */
     @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.2} }
     @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.7} }
@@ -178,6 +364,17 @@
   </style>
 </head>
 <body>
+
+  <!-- HOME SCREEN -->
+  <div id="home-screen">
+    <div class="home-icon">🚀</div>
+    <div class="home-title">Streamer<br>Simulator</div>
+    <div class="home-subtitle">Deviens une légende du streaming en cliquant, streamant et gagnant!</div>
+    <div class="home-buttons">
+      <button class="home-btn home-btn-primary" id="start-btn">Commencer</button>
+      <button class="home-btn home-btn-secondary" id="continue-btn" style="display:none;">Continuer</button>
+    </div>
+  </div>
 
   <div class="game-container">
     <div id="achievement-popup" class="achievement-popup">
@@ -197,6 +394,7 @@
         <span id="live-time" class="live-time">00:00</span>
         <span id="prestige-badge" class="prestige-badge">⭐x1</span>
         <button id="sound-btn" class="sound-btn">🔊</button>
+        <button id="menu-btn" class="menu-btn">☰</button>
       </div>
     </div>
 
@@ -270,6 +468,18 @@
     </div>
   </div>
 
+  <!-- MENU MODAL -->
+  <div id="menu-modal" class="menu-modal">
+    <div class="menu-content">
+      <div class="menu-title">Menu</div>
+      <div class="menu-buttons">
+        <button class="menu-btn-item menu-continue" id="menu-continue">Continuer</button>
+        <button class="menu-btn-item menu-new" id="menu-new">Nouvelle partie</button>
+        <button class="menu-btn-item menu-cancel" id="menu-cancel">Fermer</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     // --- DATA GAME ENGINE CONFIGURATIONS ---
     const UPGRADES = {
@@ -321,8 +531,8 @@
       { id:"a8", emoji:"🔥", name:"Clip viral", desc:"Premier prestige", check: s => s.prestige >= 1 },
     ];
 
-    const NAMES = ["Shadow_xx","MisterYou","Lolodu59","KevinGamer","ZorbaFR","NightOwl","ProGamer42","AlexStream","LaFamille","GrumpyCat","TurboViewer","FanN1","ChillBro","Xaero77","Moumoutte","DarkRider","BG_du_59","ProsperGG","KiwiStream","MLGPro"];
-    const CHAT_MSGS = ["PogChamp !","ALLOOOO","t'es trop fort fr","KEKW","gg wp","clip ça vite","OMEGALUL","vraiment ??","on t'aime boss","montée !!","LUL","montre le setup","c'est quand le prochain ?","🔥🔥🔥","GG ez","skill issue","t'es en train de péter des records","HYPE","on est là !","POG"];
+    const NAMES = ["Shadow_xx","MisterYou","Lolodu59","KevinGamer","ZorbaFR","NightOwl","ProGamer42","AlexStream","LaFamille","GrumpyCat","TurboViewer","FanN1","ChillBro","Xaero77","Moumoutte","DragonSlayer","NoobMaster","IceQueen","PhoenixRising","SilentGamer"];
+    const CHAT_MSGS = ["PogChamp !","ALLOOOO","t'es trop fort fr","KEKW","gg wp","clip ça vite","OMEGALUL","vraiment ??","on t'aime boss","montée !!","LUL","montre le setup","c'est quand le prochain stream"];
     const DON_MSGS = ["GG le stream !","t'es le meilleur","merci pour le contenu","🔥🔥","continuez comme ça","grâce à toi j'ai arrêté de bosser"];
     const CUR_EMOJI = { viewers:"👁️", subs:"💜", donations:"💰" };
 
@@ -365,6 +575,30 @@
       try {
         localStorage.setItem('streamerSimSave', JSON.stringify(gs));
       } catch(e) { console.error('Save failed:', e); }
+    };
+
+    // New game reset
+    const resetGame = () => {
+      gs = {
+        isLive: false,
+        viewers: 0, totalViewers: 0,
+        subs: 0, totalSubs: 0,
+        donations: 0, totalDonations: 0,
+        totalClicks: 0,
+        liveTime: 0,
+        prestige: 0,
+        unlockedEmotes: [],
+        unlockedAchievements: [],
+        setupUpgrades: {},
+        communityUpgrades: {},
+        businessUpgrades: {}
+      };
+      Object.keys(UPGRADES).forEach(cat => {
+        UPGRADES[cat].forEach(u => {
+          gs[`${cat}Upgrades`][u.id] = 0;
+        });
+      });
+      saveGame();
     };
 
     let currentTab = 'setup';
@@ -426,6 +660,20 @@
     const getUpgradeCost = (u, cat) => {
       const cnt = gs[`${cat}Upgrades`][u.id] || 0;
       return Math.floor(u.baseCost * Math.pow(1.15, cnt));
+    };
+
+    // --- HOME SCREEN MANAGEMENT ---
+    const startGame = () => {
+      document.getElementById('home-screen').classList.add('hidden');
+      document.querySelector('.game-container').classList.add('active');
+      render();
+    };
+
+    const continueGame = () => {
+      loadGame();
+      document.getElementById('home-screen').classList.add('hidden');
+      document.querySelector('.game-container').classList.add('active');
+      render();
     };
 
     // --- DOM RENDERING SYNC ---
@@ -785,6 +1033,24 @@
       document.getElementById('sound-btn').style.color = soundOn ? "#efeff1" : "#555";
     };
 
+    document.getElementById('menu-btn').onclick = () => {
+      document.getElementById('menu-modal').classList.add('active');
+    };
+
+    document.getElementById('menu-continue').onclick = () => {
+      document.getElementById('menu-modal').classList.remove('active');
+    };
+
+    document.getElementById('menu-new').onclick = () => {
+      resetGame();
+      document.getElementById('menu-modal').classList.remove('active');
+      render();
+    };
+
+    document.getElementById('menu-cancel').onclick = () => {
+      document.getElementById('menu-modal').classList.remove('active');
+    };
+
     const switchTab = (tabName) => {
       document.getElementById(`tab-${currentTab}`).classList.remove('active', currentTab);
       currentTab = tabName;
@@ -796,9 +1062,21 @@
     document.getElementById('tab-community').onclick = () => switchTab('community');
     document.getElementById('tab-business').onclick = () => switchTab('business');
 
+    // Home screen handlers
+    document.getElementById('start-btn').onclick = () => {
+      resetGame();
+      startGame();
+    };
+
+    document.getElementById('continue-btn').onclick = () => {
+      continueGame();
+    };
+
     // Initialize game
     loadGame();
-    render();
+    if (localStorage.getItem('streamerSimSave')) {
+      document.getElementById('continue-btn').style.display = 'block';
+    }
   </script>
 </body>
 </html>
