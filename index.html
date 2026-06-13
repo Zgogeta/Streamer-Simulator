@@ -4,7 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Streamer Simulator</title>
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%230e0e10' width='100' height='100'/><circle cx='50' cy='35' r='20' fill='%239147ff'/><path d='M30 60 L50 75 L70 60 Z' fill='%239147ff'/><text x='50' y='90' font-size='20' font-weight='bold' text-anchor='middle' fill='%23ff9f0a'>S</text></svg>">
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4948905242779965"
+     crossorigin="anonymous"></script>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%230e0e10' width='100' height='100'/><circle cx='50' cy='3[...]
   <style>
     * {
       margin: 0;
@@ -531,8 +533,8 @@
       { id:"a8", emoji:"🔥", name:"Clip viral", desc:"Premier prestige", check: s => s.prestige >= 1 },
     ];
 
-    const NAMES = ["Shadow_xx","MisterYou","Lolodu59","KevinGamer","ZorbaFR","NightOwl","ProGamer42","AlexStream","LaFamille","GrumpyCat","TurboViewer","FanN1","ChillBro","Xaero77","Moumoutte","DragonSlayer","NoobMaster","IceQueen","PhoenixRising","SilentGamer"];
-    const CHAT_MSGS = ["PogChamp !","ALLOOOO","t'es trop fort fr","KEKW","gg wp","clip ça vite","OMEGALUL","vraiment ??","on t'aime boss","montée !!","LUL","montre le setup","c'est quand le prochain stream"];
+    const NAMES = ["Shadow_xx","MisterYou","Lolodu59","KevinGamer","ZorbaFR","NightOwl","ProGamer42","AlexStream","LaFamille","GrumpyCat","TurboViewer","FanN1","ChillBro","Xaero77","Moumoutte","D[...]
+    const CHAT_MSGS = ["PogChamp !","ALLOOOO","t'es trop fort fr","KEKW","gg wp","clip ça vite","OMEGALUL","vraiment ??","on t'aime boss","montée !!","LUL","montre le setup","c'est quoi le pro[...]
     const DON_MSGS = ["GG le stream !","t'es le meilleur","merci pour le contenu","🔥🔥","continuez comme ça","grâce à toi j'ai arrêté de bosser"];
     const CUR_EMOJI = { viewers:"👁️", subs:"💜", donations:"💰" };
 
@@ -998,85 +1000,3 @@
       const linesContainer = document.getElementById('chat-lines-container');
       
       if (chatList.length === 0) linesContainer.innerHTML = '';
-
-      const newLine = {
-        user: NAMES[Math.floor(Math.random() * NAMES.length)],
-        text: CHAT_MSGS[Math.floor(Math.random() * CHAT_MSGS.length)]
-      };
-      chatList.push(newLine);
-      if (chatList.length > 30) chatList.shift();
-
-      const div = document.createElement('div');
-      div.className = 'chat-line';
-      div.innerHTML = `<span class="chat-user">${newLine.user}</span><span class="chat-text">: ${newLine.text}</span>`;
-      linesContainer.appendChild(div);
-      linesContainer.scrollTop = linesContainer.scrollHeight;
-
-      setupChatLoop();
-    };
-
-    const setupChatLoop = () => {
-      clearTimeout(nextChatTimer);
-      if (!gs.isLive) return;
-      const rates = getRates();
-      const speed = Math.max(250, 2500 - Math.floor(rates.vps) * 6);
-      nextChatTimer = setTimeout(generateChatLine, speed);
-    };
-
-    // --- INTERFACES TABS & SOUND INTERACTION HANDLERS ---
-    document.getElementById('main-click-btn').onclick = handleMainClick;
-    document.getElementById('prestige-btn').onclick = doPrestigeReset;
-    
-    document.getElementById('sound-btn').onclick = () => {
-      soundOn = !soundOn;
-      document.getElementById('sound-btn').innerText = soundOn ? "🔊" : "🔇";
-      document.getElementById('sound-btn').style.color = soundOn ? "#efeff1" : "#555";
-    };
-
-    document.getElementById('menu-btn').onclick = () => {
-      document.getElementById('menu-modal').classList.add('active');
-    };
-
-    document.getElementById('menu-continue').onclick = () => {
-      document.getElementById('menu-modal').classList.remove('active');
-    };
-
-    document.getElementById('menu-new').onclick = () => {
-      resetGame();
-      document.getElementById('menu-modal').classList.remove('active');
-      render();
-    };
-
-    document.getElementById('menu-cancel').onclick = () => {
-      document.getElementById('menu-modal').classList.remove('active');
-    };
-
-    const switchTab = (tabName) => {
-      document.getElementById(`tab-${currentTab}`).classList.remove('active', currentTab);
-      currentTab = tabName;
-      document.getElementById(`tab-${currentTab}`).classList.add('active', currentTab);
-      render();
-    };
-
-    document.getElementById('tab-setup').onclick = () => switchTab('setup');
-    document.getElementById('tab-community').onclick = () => switchTab('community');
-    document.getElementById('tab-business').onclick = () => switchTab('business');
-
-    // Home screen handlers
-    document.getElementById('start-btn').onclick = () => {
-      resetGame();
-      startGame();
-    };
-
-    document.getElementById('continue-btn').onclick = () => {
-      continueGame();
-    };
-
-    // Initialize game
-    loadGame();
-    if (localStorage.getItem('streamerSimSave')) {
-      document.getElementById('continue-btn').style.display = 'block';
-    }
-  </script>
-</body>
-</html>
