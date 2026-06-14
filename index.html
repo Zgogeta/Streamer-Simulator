@@ -6,37 +6,30 @@
   <meta name="google-adsense-account" content="ca-pub-4948905242779965">
   <title>Streamer Simulator</title>
   <style>
-    body {
-      font-family: 'Inter', system-ui, sans-serif;
-      background: #0e0e10;
-      margin: 0;
-      padding: 0;
-      color: #efeff1;
-    }
-    .game-container {
-      max-width: 430px;
-      margin: 0 auto;
-      background: #0e0e10;
-      min-height: 100vh;
-      position: relative;
-      overflow-x: hidden;
-      box-sizing: border-box;
-    }
-    .header {
-      background: #18181b;
-      padding: 10px 14px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      border-bottom: 1px solid #2a2a2e;
-    }
+    body { font-family: 'Inter', system-ui, sans-serif; background: #0e0e10; margin: 0; padding: 0; color: #efeff1; }
+    .game-container { max-width: 430px; margin: 0 auto; background: #0e0e10; min-height: 100vh; position: relative; overflow-x: hidden; box-sizing: border-box; }
+
+    /* START SCREEN */
+    #start-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 30px; box-sizing: border-box; text-align: center; }
+    .start-icon { font-size: 80px; margin-bottom: 20px; animation: float 3s ease-in-out infinite; }
+    .start-title { font-size: 32px; font-weight: 900; color: #9147ff; margin-bottom: 8px; letter-spacing: 1px; }
+    .start-sub { font-size: 14px; color: #adadb8; margin-bottom: 40px; line-height: 1.6; max-width: 280px; }
+    .start-btn { background: #9147ff; border: none; border-radius: 12px; padding: 16px 48px; color: #fff; font-size: 18px; font-weight: 800; cursor: pointer; box-shadow: 0 0 30px rgba(145,71,255,0.5); transition: all .15s; letter-spacing: 0.5px; }
+    .start-btn:active { transform: scale(0.96); }
+    .start-version { font-size: 11px; color: #3a3a3f; margin-top: 40px; }
+
+    /* GAME SCREEN */
+    #game-screen { display: none; }
+    .header { background: #18181b; padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #2a2a2e; }
     .logo { font-weight: 800; font-size: 15px; color: #9147ff; }
     .header-right { display: flex; align-items: center; gap: 8px; }
     .live-dot { width: 7px; height: 7px; border-radius: 50%; background: #eb0400; animation: blink 1s infinite; display: none; }
     .live-status { font-size: 11px; font-weight: 700; color: #eb0400; display: none; }
     .live-time { font-size: 11px; color: #adadb8; display: none; }
     .prestige-badge { font-size: 11px; color: #ff9f0a; font-weight: 700; display: none; }
-    .sound-btn { background: none; border: none; cursor: pointer; font-size: 16px; color: #efeff1; }
+    .sound-btn { background: none; border: none; cursor: pointer; font-size: 15px; color: #efeff1; }
+    .new-game-btn { background: none; border: 1px solid #3a3a3f; border-radius: 6px; padding: 4px 8px; font-size: 11px; color: #adadb8; cursor: pointer; transition: all .15s; }
+    .new-game-btn:hover { border-color: #9147ff; color: #9147ff; }
     .content { padding: 10px; display: flex; flex-direction: column; gap: 8px; }
     .stats-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
     .stat-card { background: #18181b; border-radius: 8px; padding: 8px; text-align: center; }
@@ -56,11 +49,7 @@
     .notifs-zone { min-height: 28px; }
     .notif-item { background: #18181b; border-radius: 8px; padding: 7px 10px; font-size: 12px; margin-bottom: 4px; font-weight: 600; animation: slideIn .2s ease; }
     .click-area { position: relative; text-align: center; }
-    .main-btn {
-      background: #9147ff; border: 3px solid #6d28d9; border-radius: 50%;
-      width: 100px; height: 100px; font-size: 42px; cursor: pointer; transition: all .08s;
-      box-shadow: 0 0 28px rgba(145,71,255,0.5); display: block; margin: 0 auto; outline: none;
-    }
+    .main-btn { background: #9147ff; border: 3px solid #6d28d9; border-radius: 50%; width: 100px; height: 100px; font-size: 42px; cursor: pointer; transition: all .08s; box-shadow: 0 0 28px rgba(145,71,255,0.5); display: block; margin: 0 auto; outline: none; }
     .main-btn:active { transform: scale(0.9); background: #7a35e8; box-shadow: 0 0 10px rgba(145,71,255,0.5); }
     .click-tip { font-size: 12px; color: #adadb8; margin-top: 6px; }
     .floating-text { position: absolute; color: #9147ff; font-weight: 800; font-size: 15px; pointer-events: none; animation: floatUp .8s ease-out forwards; left: 50%; top: -5px; }
@@ -111,15 +100,47 @@
     .popup-desc { font-size: 11px; font-weight: 400; opacity: .9; }
     .hype-train-banner { background: linear-gradient(90deg,#ff9f0a,#ff3b30); padding: 6px 16px; text-align: center; font-size: 13px; font-weight: 700; animation: pulse .5s infinite; display: none; }
     .prestige-btn { width: 100%; background: linear-gradient(135deg,#9147ff,#ff9f0a); border: none; border-radius: 10px; padding: 14px; color: #fff; font-weight: 800; font-size: 14px; cursor: pointer; box-shadow: 0 4px 20px rgba(145,71,255,0.4); animation: pulse 1s infinite; display: none; margin-top: 10px; }
+    .confirm-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; display: none; align-items: center; justify-content: center; }
+    .confirm-box { background: #18181b; border: 1px solid #9147ff; border-radius: 12px; padding: 24px; max-width: 300px; width: 90%; text-align: center; }
+    .confirm-title { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+    .confirm-sub { font-size: 13px; color: #adadb8; margin-bottom: 20px; }
+    .confirm-btns { display: flex; gap: 10px; }
+    .confirm-yes { flex: 1; background: #ff3b30; border: none; border-radius: 8px; padding: 12px; color: #fff; font-weight: 700; font-size: 14px; cursor: pointer; }
+    .confirm-no { flex: 1; background: #2a2a2e; border: none; border-radius: 8px; padding: 12px; color: #efeff1; font-weight: 700; font-size: 14px; cursor: pointer; }
     @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.2} }
     @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.7} }
+    @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
     @keyframes floatUp { 0%{opacity:1;transform:translateX(-50%) translateY(0)} 100%{opacity:0;transform:translateX(-50%) translateY(-45px)} }
     @keyframes slideIn { from{opacity:0;transform:translateX(-10px)} to{opacity:1;transform:translateX(0)} }
     @keyframes slideDown { from{opacity:0;transform:translateX(-50%) translateY(-20px)} to{opacity:1;transform:translateX(-50%) translateY(0)} }
   </style>
 </head>
 <body>
-  <div class="game-container">
+<div class="game-container">
+
+  <!-- CONFIRM OVERLAY -->
+  <div class="confirm-overlay" id="confirm-overlay">
+    <div class="confirm-box">
+      <div class="confirm-title">Nouvelle partie ?</div>
+      <div class="confirm-sub">Ta progression sera effacee definitivement.</div>
+      <div class="confirm-btns">
+        <button class="confirm-yes" id="confirm-yes">Recommencer</button>
+        <button class="confirm-no" id="confirm-no">Annuler</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- START SCREEN -->
+  <div id="start-screen">
+    <div class="start-icon">🚀</div>
+    <div class="start-title">StreamerSim</div>
+    <div class="start-sub">Pars de zero et deviens le plus grand streamer du monde. Clique, upgrade, et deviens viral !</div>
+    <button class="start-btn" id="start-btn">Commencer</button>
+    <div class="start-version">v1.0 — StreamerSim</div>
+  </div>
+
+  <!-- GAME SCREEN -->
+  <div id="game-screen">
     <div id="achievement-popup" class="achievement-popup">
       <span id="popup-title">🏆 🎬 Premier live</span>
       <div id="popup-desc" class="popup-desc">Lance ton premier stream</div>
@@ -133,6 +154,7 @@
         <span id="live-time" class="live-time">00:00</span>
         <span id="prestige-badge" class="prestige-badge">⭐x1</span>
         <button id="sound-btn" class="sound-btn">🔊</button>
+        <button id="new-game-btn" class="new-game-btn">↩ Nouvelle partie</button>
       </div>
     </div>
     <div class="content">
@@ -168,7 +190,7 @@
         <div id="click-tip" class="click-tip">Clique pour lancer le live !</div>
       </div>
       <div id="emotes-box" class="emotes-box">
-        <div class="emotes-title">ÉMOTES DÉBLOQUÉES</div>
+        <div class="emotes-title">EMOTES DEBLOQUEES</div>
         <div class="emotes-list" id="emotes-list-container"></div>
       </div>
       <div id="chat-box" class="chat-box">
@@ -186,322 +208,471 @@
         <div id="upgrades-store-container"></div>
       </div>
       <div class="achievements-box">
-        <div id="achievements-title-count" class="achievements-title">SUCCÈS (0/8)</div>
+        <div id="achievements-title-count" class="achievements-title">SUCCES (0/8)</div>
         <div class="achievements-list" id="achievements-list-container"></div>
       </div>
       <button id="prestige-btn" class="prestige-btn">🌟 CLIP VIRAL — Reset pour x2 multiplicateur</button>
+      <div style="height:20px;"></div>
     </div>
   </div>
-  <script>
-    const UPGRADES = {
-      setup: [
-        { id:"s1", name:"Webcam 240p", emoji:"📷", baseCost:15, baseRate:0.1, desc:"On te voit flou mais t'es là", currency:"viewers" },
-        { id:"s2", name:"Micro Casio", emoji:"🎙️", baseCost:100, baseRate:0.5, desc:"Ça craque mais ça passe", currency:"viewers" },
-        { id:"s3", name:"Fibre optique", emoji:"🌐", baseCost:600, baseRate:3, desc:"Fini les lags", currency:"viewers" },
-        { id:"s4", name:"Setup RGB", emoji:"💡", baseCost:4000, baseRate:15, desc:"Les viewers viennent pour les lumières", currency:"viewers" },
-        { id:"s5", name:"PC Gaming RTX", emoji:"🖥️", baseCost:20000, baseRate:60, desc:"240 FPS en stream", currency:"viewers" },
-        { id:"s6", name:"Studio professionnel", emoji:"🎬", baseCost:150000, baseRate:250, desc:"Niveau Ninja", currency:"viewers" },
-      ],
-      community: [
-        { id:"c1", name:"Bot Nightbot", emoji:"🤖", baseCost:5, baseRate:0.02, desc:"Modère le chat auto", currency:"subs" },
-        { id:"c2", name:"Panel émotes", emoji:"😂", baseCost:25, baseRate:0.1, desc:"Tes viewers adorent ça", currency:"subs" },
-        { id:"c3", name:"Sub goals", emoji:"🎯", baseCost:100, baseRate:0.4, desc:"Objectif subs affiché", currency:"subs" },
-        { id:"c4", name:"Hype Train", emoji:"🚂", baseCost:500, baseRate:1.5, desc:"La commu s'emballe", currency:"subs" },
-        { id:"c5", name:"Channel Points", emoji:"⭐", baseCost:2000, baseRate:6, desc:"Les viewers claquent des points", currency:"subs" },
-        { id:"c6", name:"Discord VIP", emoji:"👑", baseCost:10000, baseRate:25, desc:"Communauté soudée", currency:"subs" },
-      ],
-      business: [
-        { id:"b1", name:"Merch basique", emoji:"👕", baseCost:2, baseRate:0.5, desc:"T-shirt avec ta tête", currency:"donations" },
-        { id:"b2", name:"Sponsoring NordVPN", emoji:"🔒", baseCost:10, baseRate:2, desc:"VPN de qualité sup", currency:"donations" },
-        { id:"b3", name:"Brand deal gaming", emoji:"🎮", baseCost:50, baseRate:8, desc:"La marque te paye bien", currency:"donations" },
-        { id:"b4", name:"Clips YouTube", emoji:"▶️", baseCost:200, baseRate:30, desc:"Revenu passif des vues", currency:"donations" },
-        { id:"b5", name:"Cours en ligne", emoji:"📚", baseCost:800, baseRate:120, desc:"\"Devenir streamer en 30 jours\"", currency:"donations" },
-        { id:"b6", name:"Agence talent", emoji:"💼", baseCost:3000, baseRate:500, desc:"Une équipe qui bosse pour toi", currency:"donations" },
-      ],
-    };
-    const EMOTES = [
-      { id:"e1", emoji:"😮", name:"PogChamp", unlock:10 },
-      { id:"e2", emoji:"😂", name:"KEKW", unlock:50 },
-      { id:"e3", emoji:"😰", name:"MonkaS", unlock:100 },
-      { id:"e4", emoji:"😤", name:"Copium", unlock:250 },
-      { id:"e5", emoji:"🚂", name:"HypeChoo", unlock:500 },
-      { id:"e6", emoji:"💜", name:"TwitchHeart", unlock:1000 },
-      { id:"e7", emoji:"🌟", name:"GoldStar", unlock:2500 },
-      { id:"e8", emoji:"👑", name:"Crown", unlock:5000 },
-    ];
-    const ACHIEVEMENTS = [
-      { id:"a1", emoji:"🎬", name:"Premier live", desc:"Lance ton premier stream", check: s => s.totalClicks >= 1 },
-      { id:"a2", emoji:"🎙️", name:"Micro ouvert", desc:"50 clics", check: s => s.totalClicks >= 50 },
-      { id:"a3", emoji:"👥", name:"100 viewers", desc:"Atteins 100 viewers", check: s => s.totalViewers >= 100 },
-      { id:"a4", emoji:"💜", name:"First sub", desc:"Premier abonné", check: s => s.totalSubs >= 1 },
-      { id:"a5", emoji:"🎉", name:"100 subs", desc:"100 abonnés !", check: s => s.totalSubs >= 100 },
-      { id:"a6", emoji:"💰", name:"Premier don", desc:"Première donation", check: s => s.totalDonations >= 1 },
-      { id:"a7", emoji:"🤑", name:"Millionnaire", desc:"1M viewers total", check: s => s.totalViewers >= 1000000 },
-      { id:"a8", emoji:"🔥", name:"Clip viral", desc:"Premier prestige", check: s => s.prestige >= 1 },
-    ];
-    const NAMES = ["Shadow_xx","MisterYou","Lolodu59","KevinGamer","ZorbaFR","NightOwl","ProGamer42","AlexStream","LaFamille","GrumpyCat","TurboViewer","FanN1","ChillBro","Xaero77","Moumoutte","DarkRider","BG_du_59","ProsperGG","KiwiStream","MLGPro"];
-    const CHAT_MSGS = ["PogChamp !","ALLOOOO","t'es trop fort fr","KEKW","gg wp","clip ça vite","OMEGALUL","vraiment ??","on t'aime boss","montée !!","LUL","montre le setup","c'est quand le prochain ?","🔥🔥🔥","GG ez","skill issue","t'es en train de péter des records","HYPE","on est là !","POG"];
-    const DON_MSGS = ["GG le stream !","t'es le meilleur","merci pour le contenu","🔥🔥","continuez comme ça","grâce à toi j'ai arrêté de bosser"];
-    const CUR_EMOJI = { viewers:"👁️", subs:"💜", donations:"💰" };
 
-    let gs = {
+</div>
+<script>
+  var UPGRADES = {
+    setup: [
+      { id:"s1", name:"Webcam 240p", emoji:"📷", baseCost:15, baseRate:0.1, desc:"On te voit flou mais t'es la", currency:"viewers" },
+      { id:"s2", name:"Micro Casio", emoji:"🎙️", baseCost:100, baseRate:0.5, desc:"Ca craque mais ca passe", currency:"viewers" },
+      { id:"s3", name:"Fibre optique", emoji:"🌐", baseCost:600, baseRate:3, desc:"Fini les lags", currency:"viewers" },
+      { id:"s4", name:"Setup RGB", emoji:"💡", baseCost:4000, baseRate:15, desc:"Les viewers viennent pour les lumieres", currency:"viewers" },
+      { id:"s5", name:"PC Gaming RTX", emoji:"🖥️", baseCost:20000, baseRate:60, desc:"240 FPS en stream", currency:"viewers" },
+      { id:"s6", name:"Studio professionnel", emoji:"🎬", baseCost:150000, baseRate:250, desc:"Niveau Ninja", currency:"viewers" }
+    ],
+    community: [
+      { id:"c1", name:"Bot Nightbot", emoji:"🤖", baseCost:5, baseRate:0.02, desc:"Modere le chat auto", currency:"subs" },
+      { id:"c2", name:"Panel emotes", emoji:"😂", baseCost:25, baseRate:0.1, desc:"Tes viewers adorent ca", currency:"subs" },
+      { id:"c3", name:"Sub goals", emoji:"🎯", baseCost:100, baseRate:0.4, desc:"Objectif subs affiche", currency:"subs" },
+      { id:"c4", name:"Hype Train", emoji:"🚂", baseCost:500, baseRate:1.5, desc:"La commu s'emballe", currency:"subs" },
+      { id:"c5", name:"Channel Points", emoji:"⭐", baseCost:2000, baseRate:6, desc:"Les viewers claquent des points", currency:"subs" },
+      { id:"c6", name:"Discord VIP", emoji:"👑", baseCost:10000, baseRate:25, desc:"Communaute soudee", currency:"subs" }
+    ],
+    business: [
+      { id:"b1", name:"Merch basique", emoji:"👕", baseCost:2, baseRate:0.5, desc:"T-shirt avec ta tete", currency:"donations" },
+      { id:"b2", name:"Sponsoring NordVPN", emoji:"🔒", baseCost:10, baseRate:2, desc:"VPN de qualite sup", currency:"donations" },
+      { id:"b3", name:"Brand deal gaming", emoji:"🎮", baseCost:50, baseRate:8, desc:"La marque te paye bien", currency:"donations" },
+      { id:"b4", name:"Clips YouTube", emoji:"▶️", baseCost:200, baseRate:30, desc:"Revenu passif des vues", currency:"donations" },
+      { id:"b5", name:"Cours en ligne", emoji:"📚", baseCost:800, baseRate:120, desc:"Devenir streamer en 30 jours", currency:"donations" },
+      { id:"b6", name:"Agence talent", emoji:"💼", baseCost:3000, baseRate:500, desc:"Une equipe qui bosse pour toi", currency:"donations" }
+    ]
+  };
+
+  var EMOTES = [
+    { id:"e1", emoji:"😮", name:"PogChamp", unlock:10 },
+    { id:"e2", emoji:"😂", name:"KEKW", unlock:50 },
+    { id:"e3", emoji:"😰", name:"MonkaS", unlock:100 },
+    { id:"e4", emoji:"😤", name:"Copium", unlock:250 },
+    { id:"e5", emoji:"🚂", name:"HypeChoo", unlock:500 },
+    { id:"e6", emoji:"💜", name:"TwitchHeart", unlock:1000 },
+    { id:"e7", emoji:"🌟", name:"GoldStar", unlock:2500 },
+    { id:"e8", emoji:"👑", name:"Crown", unlock:5000 }
+  ];
+
+  var ACHIEVEMENTS = [
+    { id:"a1", emoji:"🎬", name:"Premier live", desc:"Lance ton premier stream", check:function(s){ return s.totalClicks >= 1; } },
+    { id:"a2", emoji:"🎙️", name:"Micro ouvert", desc:"50 clics", check:function(s){ return s.totalClicks >= 50; } },
+    { id:"a3", emoji:"👥", name:"100 viewers", desc:"Atteins 100 viewers", check:function(s){ return s.totalViewers >= 100; } },
+    { id:"a4", emoji:"💜", name:"First sub", desc:"Premier abonne", check:function(s){ return s.totalSubs >= 1; } },
+    { id:"a5", emoji:"🎉", name:"100 subs", desc:"100 abonnes !", check:function(s){ return s.totalSubs >= 100; } },
+    { id:"a6", emoji:"💰", name:"Premier don", desc:"Premiere donation", check:function(s){ return s.totalDonations >= 1; } },
+    { id:"a7", emoji:"🤑", name:"Millionnaire", desc:"1M viewers total", check:function(s){ return s.totalViewers >= 1000000; } },
+    { id:"a8", emoji:"🔥", name:"Clip viral", desc:"Premier prestige", check:function(s){ return s.prestige >= 1; } }
+  ];
+
+  var NAMES = ["Shadow_xx","MisterYou","Lolodu59","KevinGamer","ZorbaFR","NightOwl","ProGamer42","AlexStream","LaFamille","GrumpyCat","TurboViewer","FanN1","ChillBro","Xaero77","Moumoutte","DarkRider","BG_du_59","ProsperGG","KiwiStream","MLGPro"];
+  var CHAT_MSGS = ["PogChamp !","ALLOOOO","t'es trop fort fr","KEKW","gg wp","clip ca vite","OMEGALUL","vraiment ??","on t'aime boss","montee !!","LUL","montre le setup","c'est quand le prochain ?","GG ez","skill issue","HYPE","on est la !","POG"];
+  var DON_MSGS = ["GG le stream !","t'es le meilleur","merci pour le contenu","continuez comme ca","grace a toi j'ai arrete de bosser"];
+  var CUR_EMOJI = { viewers:"👁️", subs:"💜", donations:"💰" };
+
+  function makeDefaultGs() {
+    var obj = {
       isLive:false, viewers:0, totalViewers:0, subs:0, totalSubs:0,
       donations:0, totalDonations:0, totalClicks:0, liveTime:0, prestige:0,
       unlockedEmotes:[], unlockedAchievements:[],
       setupUpgrades:{}, communityUpgrades:{}, businessUpgrades:{}
     };
-    Object.keys(UPGRADES).forEach(cat => {
-      UPGRADES[cat].forEach(u => { gs[`${cat}Upgrades`][u.id] = 0; });
-    });
-
-    const loadGame = () => {
-      try { const s = localStorage.getItem('streamerSimSave'); if(s) Object.assign(gs, JSON.parse(s)); } catch(e) {}
-    };
-    const saveGame = () => {
-      try { localStorage.setItem('streamerSimSave', JSON.stringify(gs)); } catch(e) {}
-    };
-
-    let currentTab = 'setup', soundOn = true, hypeTrain = null, chatList = [], nextChatTimer = null;
-
-    const playSound = (type) => {
-      if (!soundOn) return;
-      try {
-        const ctx = new (window.AudioContext || window.webkitAudioContext)();
-        const mk = (freq, t2, start, dur, vol) => {
-          const o = ctx.createOscillator(), g = ctx.createGain();
-          o.connect(g); g.connect(ctx.destination);
-          o.frequency.value = freq; o.type = t2;
-          g.gain.setValueAtTime(vol, ctx.currentTime + start);
-          g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + start + dur);
-          o.start(ctx.currentTime + start); o.stop(ctx.currentTime + start + dur + 0.01);
-        };
-        if (type==='click') { mk(700,'sine',0,0.06,0.07); }
-        else if (type==='sub') { mk(880,'sine',0,0.25,0.15); mk(1100,'sine',0.12,0.35,0.12); }
-        else if (type==='donation') { mk(1200,'triangle',0,0.15,0.2); mk(1500,'triangle',0.1,0.25,0.15); mk(1800,'triangle',0.2,0.3,0.1); }
-        else if (type==='raid') { [523,659,784,1047].forEach((f,i)=>mk(f,'sawtooth',i*0.08,0.25,0.08)); }
-        else if (type==='levelup') { [523,659,784].forEach((f,i)=>mk(f,'sine',i*0.1,0.2,0.12)); }
-        else if (type==='emote') { mk(1000,'square',0,0.08,0.05); }
-        else if (type==='hype') { [400,600,800,1000,1200].forEach((f,i)=>mk(f,'sawtooth',i*0.06,0.2,0.07)); }
-      } catch(e) {}
-    };
-
-    const fmt = (n) => {
-      n = Math.floor(n);
-      if (n>=1e9) return (n/1e9).toFixed(1)+"B";
-      if (n>=1e6) return (n/1e6).toFixed(1)+"M";
-      if (n>=1e3) return (n/1e3).toFixed(1)+"K";
-      return n.toString();
-    };
-    const fmtTime = (ms) => {
-      const s=Math.floor(ms/1000), h=Math.floor(s/3600), m=Math.floor((s%3600)/60), sec=s%60;
-      return h>0?`${h}h${String(m).padStart(2,'0')}`:`${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
-    };
-    const getRates = () => {
-      const pm=Math.pow(2,gs.prestige); let vps=0,sps=0,dps=0;
-      UPGRADES.setup.forEach(u=>{vps+=u.baseRate*(gs.setupUpgrades[u.id]||0);});
-      UPGRADES.community.forEach(u=>{sps+=u.baseRate*(gs.communityUpgrades[u.id]||0);});
-      UPGRADES.business.forEach(u=>{dps+=u.baseRate*(gs.businessUpgrades[u.id]||0);});
-      return {vps:vps*pm,sps:sps*pm,dps:dps*pm};
-    };
-    const getUpgradeCost = (u,cat) => Math.floor(u.baseCost*Math.pow(1.15,gs[`${cat}Upgrades`][u.id]||0));
-
-    const render = () => {
-      const rates=getRates(), hm=hypeTrain?hypeTrain.mult:1, pm=Math.pow(2,gs.prestige);
-      document.getElementById('live-dot').style.display=gs.isLive?'block':'none';
-      document.getElementById('live-status').style.display=gs.isLive?'block':'none';
-      document.getElementById('live-time').style.display=gs.isLive?'block':'none';
-      document.getElementById('live-time').innerText=fmtTime(gs.liveTime);
-      if (gs.prestige>0) {
-        document.getElementById('prestige-badge').style.display='block';
-        document.getElementById('prestige-badge').innerText=`⭐x${gs.prestige}`;
-      } else { document.getElementById('prestige-badge').style.display='none'; }
-      document.getElementById('stat-viewers-val').innerText=fmt(gs.viewers);
-      document.getElementById('stat-viewers-rate').innerText=`+${(rates.vps*hm).toFixed(1)}/s`;
-      document.getElementById('stat-subs-val').innerText=fmt(gs.subs);
-      document.getElementById('stat-subs-rate').innerText=`+${rates.sps.toFixed(2)}/s`;
-      document.getElementById('stat-dons-val').innerText=fmt(gs.donations);
-      document.getElementById('stat-dons-rate').innerText=`+${rates.dps.toFixed(2)}/s`;
-      const virPct=Math.min((gs.totalViewers/1000000)*100,100);
-      document.getElementById('viral-text').innerText=`${fmt(gs.totalViewers)} / 1M`;
-      const vBar=document.getElementById('viral-bar');
-      vBar.style.width=`${virPct}%`;
-      vBar.style.background=virPct>80?"linear-gradient(90deg,#9147ff,#ff9f0a)":"#9147ff";
-      const clickVal=Math.ceil(pm);
-      document.getElementById('main-click-btn').innerText=gs.isLive?"🎮":"🚀";
-      document.getElementById('click-tip').innerText=gs.isLive?`+${fmt(clickVal)} viewers / clic`:"Clique pour lancer le live !";
-      document.getElementById('main-click-btn').style.border=`3px solid ${hypeTrain?"#ff9f0a":"#6d28d9"}`;
-      document.getElementById('main-click-btn').style.boxShadow=`0 0 ${hypeTrain?"35px":"28px"} rgba(145,71,255,${hypeTrain?0.9:0.5})`;
-      if (gs.isLive) {
-        document.getElementById('chat-box').style.display='block';
-        document.getElementById('chat-header-text').innerText=`💬 Chat — ${fmt(gs.viewers)} en live`;
+    var cats = Object.keys(UPGRADES);
+    for (var ci=0; ci<cats.length; ci++) {
+      var cat = cats[ci];
+      for (var ui=0; ui<UPGRADES[cat].length; ui++) {
+        obj[cat + 'Upgrades'][UPGRADES[cat][ui].id] = 0;
       }
-      if (gs.unlockedEmotes.length>0) document.getElementById('emotes-box').style.display='block';
-      const ec=document.getElementById('emotes-list-container'); ec.innerHTML='';
-      let nef=false;
-      EMOTES.forEach(e=>{
-        const ok=gs.unlockedEmotes.includes(e.id);
-        const span=document.createElement('span');
-        span.className=`emote-item ${ok?'unlocked':''}`;
-        span.title=ok?e.name:`🔒 ${e.unlock} clics`;
-        span.innerText=e.emoji;
-        if (!ok&&!nef) { nef=true; const dot=document.createElement('span'); dot.className='emote-next-dot'; span.appendChild(dot); }
-        ec.appendChild(span);
-      });
-      const ne=EMOTES.find(e=>!gs.unlockedEmotes.includes(e.id));
-      const nts=document.createElement('span'); nts.className='emotes-next-text';
-      nts.innerText=ne?`Prochain: ${ne.unlock} clics`:"Tout débloqué 👑"; ec.appendChild(nts);
-      const sc=document.getElementById('upgrades-store-container'); sc.innerHTML='';
-      UPGRADES[currentTab].forEach(u=>{
-        const cnt=gs[`${currentTab}Upgrades`][u.id]||0, cost=getUpgradeCost(u,currentTab), canBuy=gs[u.currency]>=cost;
-        const btn=document.createElement('button');
-        btn.className=`upgrade-btn ${canBuy?'can-buy':''} ${currentTab}`;
-        btn.disabled=!canBuy; btn.onclick=()=>buyUpgrade(currentTab,u.id);
-        btn.innerHTML=`<span class="upgrade-emoji">${u.emoji}</span><div class="upgrade-info"><div class="upgrade-name">${u.name}${cnt>0?`<span class="upgrade-count ${currentTab}">x${cnt}</span>`:''}</div><div class="upgrade-desc">${u.desc}</div></div><div class="upgrade-cost-zone"><div class="upgrade-cost">${fmt(cost)} ${CUR_EMOJI[u.currency]}</div><div class="upgrade-rate">+${u.baseRate}/s</div></div>`;
-        sc.appendChild(btn);
-      });
-      document.getElementById('achievements-title-count').innerText=`SUCCÈS (${gs.unlockedAchievements.length}/${ACHIEVEMENTS.length})`;
-      const ac=document.getElementById('achievements-list-container'); ac.innerHTML='';
-      ACHIEVEMENTS.forEach(a=>{
-        const ok=gs.unlockedAchievements.includes(a.id);
-        const span=document.createElement('span');
-        span.className=`achievement-item ${ok?'unlocked':''}`;
-        span.title=`${a.name}: ${a.desc}`; span.innerText=a.emoji; ac.appendChild(span);
-      });
-      const pb=document.getElementById('prestige-btn');
-      if (gs.totalViewers>=1000000) { pb.style.display='block'; pb.innerText=`🌟 CLIP VIRAL — Reset pour x${pm*2} multiplicateur`; }
-      else { pb.style.display='none'; }
-    };
+    }
+    return obj;
+  }
 
-    const addNotif = (text,color) => {
-      const zone=document.getElementById('notifs-zone');
-      const div=document.createElement('div'); div.className='notif-item';
-      div.style.borderColor=color+"44"; div.style.color=color; div.innerText=text;
-      if (zone.children.length>=3) zone.removeChild(zone.children[0]);
-      zone.appendChild(div);
-      setTimeout(()=>{ if(div.parentNode) div.parentNode.removeChild(div); },4000);
-    };
-    const showAchievementPopup = (a) => {
-      const pop=document.getElementById('achievement-popup');
-      document.getElementById('popup-title').innerText=`🏆 ${a.emoji} ${a.name}`;
-      document.getElementById('popup-desc').innerText=a.desc;
-      pop.style.display='block'; setTimeout(()=>{pop.style.display='none';},3000);
-    };
-    const handleMainClick = () => {
-      const pm=Math.pow(2,gs.prestige), clickVal=Math.ceil(pm);
-      if (!gs.isLive) {
-        gs.isLive=true; gs.totalClicks+=1; playSound('click');
-        checkAchievements(); setupChatLoop(); saveGame(); render(); return;
+  var gs = makeDefaultGs();
+  var currentTab = 'setup';
+  var soundOn = true;
+  var hypeTrain = null;
+  var chatList = [];
+  var nextChatTimer = null;
+
+  function loadGame() {
+    try {
+      var s = localStorage.getItem('streamerSimSave');
+      if (s) {
+        var loaded = JSON.parse(s);
+        var keys = Object.keys(loaded);
+        for (var i=0; i<keys.length; i++) { gs[keys[i]] = loaded[keys[i]]; }
       }
-      gs.viewers+=clickVal; gs.totalViewers+=clickVal; gs.totalClicks+=1;
-      const box=document.getElementById('click-area-box');
-      const ft=document.createElement('div'); ft.className='floating-text';
-      ft.innerText=`+${fmt(clickVal)}`; box.appendChild(ft); setTimeout(()=>ft.remove(),800);
-      playSound('click'); checkEmoteUnlocks(); checkAchievements(); saveGame(); render();
-    };
-    const buyUpgrade = (cat,uid) => {
-      const u=UPGRADES[cat].find(u=>u.id===uid), cost=getUpgradeCost(u,cat);
-      if (gs[u.currency]>=cost) {
-        gs[u.currency]-=cost; gs[`${cat}Upgrades`][uid]=(gs[`${cat}Upgrades`][uid]||0)+1;
-        playSound('levelup'); checkAchievements(); saveGame(); render();
+    } catch(e) {}
+  }
+
+  function saveGame() {
+    try { localStorage.setItem('streamerSimSave', JSON.stringify(gs)); } catch(e) {}
+  }
+
+  function resetGame() {
+    gs = makeDefaultGs();
+    chatList = [];
+    hypeTrain = null;
+    currentTab = 'setup';
+    clearTimeout(nextChatTimer);
+    try { localStorage.removeItem('streamerSimSave'); } catch(e) {}
+    document.getElementById('chat-lines-container').innerHTML = '<div style="color:#555;font-size:12px;">Le chat attend...</div>';
+    document.getElementById('chat-box').style.display = 'none';
+    document.getElementById('emotes-box').style.display = 'none';
+    document.getElementById('hype-banner').style.display = 'none';
+    document.getElementById('tab-setup').classList.add('active','setup');
+    document.getElementById('tab-community').classList.remove('active','community');
+    document.getElementById('tab-business').classList.remove('active','business');
+  }
+
+  function showStartScreen() {
+    document.getElementById('start-screen').style.display = 'flex';
+    document.getElementById('game-screen').style.display = 'none';
+  }
+
+  function showGameScreen() {
+    document.getElementById('start-screen').style.display = 'none';
+    document.getElementById('game-screen').style.display = 'block';
+    render();
+  }
+
+  function playSound(type) {
+    if (!soundOn) return;
+    try {
+      var ctx = new (window.AudioContext || window.webkitAudioContext)();
+      function mk(freq, t2, start, dur, vol) {
+        var o = ctx.createOscillator(), g = ctx.createGain();
+        o.connect(g); g.connect(ctx.destination);
+        o.frequency.value = freq; o.type = t2;
+        g.gain.setValueAtTime(vol, ctx.currentTime + start);
+        g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + start + dur);
+        o.start(ctx.currentTime + start);
+        o.stop(ctx.currentTime + start + dur + 0.01);
       }
-    };
-    const doPrestigeReset = () => {
-      if (gs.totalViewers<1000000) return;
-      playSound('raid');
-      const cc=gs.totalClicks, cp=gs.prestige, se=[...gs.unlockedEmotes], sa=[...gs.unlockedAchievements];
-      gs.isLive=false; gs.viewers=0; gs.totalViewers=0; gs.subs=0; gs.totalSubs=0;
-      gs.donations=0; gs.totalDonations=0; gs.liveTime=0;
-      gs.totalClicks=cc; gs.prestige=cp+1; gs.unlockedEmotes=se; gs.unlockedAchievements=sa;
-      Object.keys(UPGRADES).forEach(cat=>{ UPGRADES[cat].forEach(u=>{gs[`${cat}Upgrades`][u.id]=0;}); });
-      chatList=[]; document.getElementById('chat-lines-container').innerHTML='<div style="color:#555;font-size:12px;">Le chat attend...</div>';
-      document.getElementById('chat-box').style.display='none';
-      hypeTrain=null; document.getElementById('hype-banner').style.display='none';
-      checkAchievements(); saveGame(); render();
-    };
-    const checkEmoteUnlocks = () => {
-      EMOTES.forEach(e=>{
-        if (gs.totalClicks>=e.unlock&&!gs.unlockedEmotes.includes(e.id)) {
-          gs.unlockedEmotes.push(e.id); addNotif(`${e.emoji} Émote débloquée : ${e.name} !`,'#30d158'); playSound('emote');
-        }
-      });
-    };
-    const checkAchievements = () => {
-      ACHIEVEMENTS.forEach(a=>{
-        if (a.check(gs)&&!gs.unlockedAchievements.includes(a.id)) {
-          gs.unlockedAchievements.push(a.id); showAchievementPopup(a); playSound('levelup');
-        }
-      });
-    };
+      if (type === 'click') { mk(700,'sine',0,0.06,0.07); }
+      else if (type === 'sub') { mk(880,'sine',0,0.25,0.15); mk(1100,'sine',0.12,0.35,0.12); }
+      else if (type === 'donation') { mk(1200,'triangle',0,0.15,0.2); mk(1500,'triangle',0.1,0.25,0.15); mk(1800,'triangle',0.2,0.3,0.1); }
+      else if (type === 'raid') { var rf=[523,659,784,1047]; for(var i=0;i<rf.length;i++){mk(rf[i],'sawtooth',i*0.08,0.25,0.08);} }
+      else if (type === 'levelup') { var lf=[523,659,784]; for(var i=0;i<lf.length;i++){mk(lf[i],'sine',i*0.1,0.2,0.12);} }
+      else if (type === 'emote') { mk(1000,'square',0,0.08,0.05); }
+      else if (type === 'hype') { var hf=[400,600,800,1000,1200]; for(var i=0;i<hf.length;i++){mk(hf[i],'sawtooth',i*0.06,0.2,0.07);} }
+    } catch(e) {}
+  }
 
-    setInterval(()=>{
-      if (!gs.isLive) return;
-      const rates=getRates(), hm=hypeTrain?hypeTrain.mult:1;
-      gs.viewers+=(rates.vps*hm)/20; gs.totalViewers+=(rates.vps*hm)/20;
-      gs.subs+=rates.sps/20; gs.totalSubs+=rates.sps/20;
-      gs.donations+=rates.dps/20; gs.totalDonations+=rates.dps/20;
-      gs.liveTime+=50;
-      if (hypeTrain) {
-        hypeTrain.left-=50;
-        const banner=document.getElementById('hype-banner');
-        if (hypeTrain.left<=0) { hypeTrain=null; banner.style.display='none'; }
-        else { banner.style.display='block'; banner.innerText=`🚂 HYPE TRAIN x${hypeTrain.mult} — ${(hypeTrain.left/1000).toFixed(1)}s`; }
+  function fmt(n) {
+    n = Math.floor(n);
+    if (n >= 1e9) return (n/1e9).toFixed(1) + "B";
+    if (n >= 1e6) return (n/1e6).toFixed(1) + "M";
+    if (n >= 1e3) return (n/1e3).toFixed(1) + "K";
+    return n.toString();
+  }
+
+  function fmtTime(ms) {
+    var s = Math.floor(ms/1000);
+    var h = Math.floor(s/3600);
+    var m = Math.floor((s%3600)/60);
+    var sec = s%60;
+    if (h > 0) return h + "h" + (m < 10 ? "0" : "") + m;
+    return (m < 10 ? "0" : "") + m + ":" + (sec < 10 ? "0" : "") + sec;
+  }
+
+  function getRates() {
+    var pm = Math.pow(2, gs.prestige);
+    var vps=0, sps=0, dps=0;
+    for (var i=0;i<UPGRADES.setup.length;i++) vps += UPGRADES.setup[i].baseRate * (gs.setupUpgrades[UPGRADES.setup[i].id]||0);
+    for (var i=0;i<UPGRADES.community.length;i++) sps += UPGRADES.community[i].baseRate * (gs.communityUpgrades[UPGRADES.community[i].id]||0);
+    for (var i=0;i<UPGRADES.business.length;i++) dps += UPGRADES.business[i].baseRate * (gs.businessUpgrades[UPGRADES.business[i].id]||0);
+    return { vps:vps*pm, sps:sps*pm, dps:dps*pm };
+  }
+
+  function getUpgradeCost(u, cat) {
+    return Math.floor(u.baseCost * Math.pow(1.15, gs[cat+'Upgrades'][u.id]||0));
+  }
+
+  function render() {
+    var rates = getRates();
+    var hm = hypeTrain ? hypeTrain.mult : 1;
+    var pm = Math.pow(2, gs.prestige);
+
+    document.getElementById('live-dot').style.display = gs.isLive ? 'block' : 'none';
+    document.getElementById('live-status').style.display = gs.isLive ? 'block' : 'none';
+    document.getElementById('live-time').style.display = gs.isLive ? 'block' : 'none';
+    document.getElementById('live-time').innerText = fmtTime(gs.liveTime);
+
+    if (gs.prestige > 0) {
+      document.getElementById('prestige-badge').style.display = 'block';
+      document.getElementById('prestige-badge').innerText = "⭐x" + gs.prestige;
+    } else {
+      document.getElementById('prestige-badge').style.display = 'none';
+    }
+
+    document.getElementById('stat-viewers-val').innerText = fmt(gs.viewers);
+    document.getElementById('stat-viewers-rate').innerText = "+" + (rates.vps*hm).toFixed(1) + "/s";
+    document.getElementById('stat-subs-val').innerText = fmt(gs.subs);
+    document.getElementById('stat-subs-rate').innerText = "+" + rates.sps.toFixed(2) + "/s";
+    document.getElementById('stat-dons-val').innerText = fmt(gs.donations);
+    document.getElementById('stat-dons-rate').innerText = "+" + rates.dps.toFixed(2) + "/s";
+
+    var virPct = Math.min((gs.totalViewers/1000000)*100, 100);
+    document.getElementById('viral-text').innerText = fmt(gs.totalViewers) + " / 1M";
+    var vBar = document.getElementById('viral-bar');
+    vBar.style.width = virPct + "%";
+    vBar.style.background = virPct > 80 ? "linear-gradient(90deg,#9147ff,#ff9f0a)" : "#9147ff";
+
+    var clickVal = Math.ceil(pm);
+    document.getElementById('main-click-btn').innerText = gs.isLive ? "🎮" : "🚀";
+    document.getElementById('click-tip').innerText = gs.isLive ? "+" + fmt(clickVal) + " viewers / clic" : "Clique pour lancer le live !";
+    document.getElementById('main-click-btn').style.border = "3px solid " + (hypeTrain ? "#ff9f0a" : "#6d28d9");
+    document.getElementById('main-click-btn').style.boxShadow = "0 0 " + (hypeTrain ? "35px" : "28px") + " rgba(145,71,255," + (hypeTrain ? "0.9" : "0.5") + ")";
+
+    if (gs.isLive) {
+      document.getElementById('chat-box').style.display = 'block';
+      document.getElementById('chat-header-text').innerText = "💬 Chat — " + fmt(gs.viewers) + " en live";
+    }
+    if (gs.unlockedEmotes.length > 0) document.getElementById('emotes-box').style.display = 'block';
+
+    var ec = document.getElementById('emotes-list-container');
+    ec.innerHTML = '';
+    var nef = false;
+    for (var i=0;i<EMOTES.length;i++) {
+      var e = EMOTES[i];
+      var ok = gs.unlockedEmotes.indexOf(e.id) !== -1;
+      var span = document.createElement('span');
+      span.className = 'emote-item' + (ok ? ' unlocked' : '');
+      span.title = ok ? e.name : ("🔒 " + e.unlock + " clics");
+      span.innerText = e.emoji;
+      if (!ok && !nef) { nef=true; var dot=document.createElement('span'); dot.className='emote-next-dot'; span.appendChild(dot); }
+      ec.appendChild(span);
+    }
+    var ne = null;
+    for (var i=0;i<EMOTES.length;i++) { if (gs.unlockedEmotes.indexOf(EMOTES[i].id)===-1){ne=EMOTES[i];break;} }
+    var nts = document.createElement('span'); nts.className='emotes-next-text';
+    nts.innerText = ne ? ("Prochain: " + ne.unlock + " clics") : "Tout debloque 👑";
+    ec.appendChild(nts);
+
+    var sc = document.getElementById('upgrades-store-container');
+    sc.innerHTML = '';
+    var upg = UPGRADES[currentTab];
+    for (var i=0;i<upg.length;i++) {
+      var u = upg[i];
+      var cnt = gs[currentTab+'Upgrades'][u.id]||0;
+      var cost = getUpgradeCost(u, currentTab);
+      var canBuy = gs[u.currency] >= cost;
+      var btn = document.createElement('button');
+      btn.className = 'upgrade-btn' + (canBuy ? ' can-buy' : '') + ' ' + currentTab;
+      btn.disabled = !canBuy;
+      (function(cat,uid){ btn.onclick = function(){ buyUpgrade(cat,uid); }; })(currentTab, u.id);
+      btn.innerHTML = '<span class="upgrade-emoji">'+u.emoji+'</span>'+
+        '<div class="upgrade-info"><div class="upgrade-name">'+u.name+(cnt>0?'<span class="upgrade-count '+currentTab+'">x'+cnt+'</span>':'')+
+        '</div><div class="upgrade-desc">'+u.desc+'</div></div>'+
+        '<div class="upgrade-cost-zone"><div class="upgrade-cost">'+fmt(cost)+' '+CUR_EMOJI[u.currency]+'</div>'+
+        '<div class="upgrade-rate">+'+u.baseRate+'/s</div></div>';
+      sc.appendChild(btn);
+    }
+
+    document.getElementById('achievements-title-count').innerText = "SUCCES (" + gs.unlockedAchievements.length + "/" + ACHIEVEMENTS.length + ")";
+    var ac = document.getElementById('achievements-list-container');
+    ac.innerHTML = '';
+    for (var i=0;i<ACHIEVEMENTS.length;i++) {
+      var a = ACHIEVEMENTS[i];
+      var ok = gs.unlockedAchievements.indexOf(a.id) !== -1;
+      var span = document.createElement('span');
+      span.className = 'achievement-item' + (ok ? ' unlocked' : '');
+      span.title = a.name + ": " + a.desc;
+      span.innerText = a.emoji;
+      ac.appendChild(span);
+    }
+
+    var pb = document.getElementById('prestige-btn');
+    if (gs.totalViewers >= 1000000) {
+      pb.style.display = 'block';
+      pb.innerText = "🌟 CLIP VIRAL — Reset pour x" + (pm*2) + " multiplicateur";
+    } else {
+      pb.style.display = 'none';
+    }
+  }
+
+  function addNotif(text, color) {
+    var zone = document.getElementById('notifs-zone');
+    var div = document.createElement('div');
+    div.className = 'notif-item';
+    div.style.borderColor = color + "44";
+    div.style.color = color;
+    div.innerText = text;
+    if (zone.children.length >= 3) zone.removeChild(zone.children[0]);
+    zone.appendChild(div);
+    setTimeout(function(){ if(div.parentNode) div.parentNode.removeChild(div); }, 4000);
+  }
+
+  function showAchievementPopup(a) {
+    var pop = document.getElementById('achievement-popup');
+    document.getElementById('popup-title').innerText = "🏆 " + a.emoji + " " + a.name;
+    document.getElementById('popup-desc').innerText = a.desc;
+    pop.style.display = 'block';
+    setTimeout(function(){ pop.style.display='none'; }, 3000);
+  }
+
+  function handleMainClick() {
+    var pm = Math.pow(2, gs.prestige);
+    var clickVal = Math.ceil(pm);
+    if (!gs.isLive) {
+      gs.isLive = true; gs.totalClicks += 1;
+      playSound('click'); checkAchievements(); setupChatLoop(); saveGame(); render(); return;
+    }
+    gs.viewers += clickVal; gs.totalViewers += clickVal; gs.totalClicks += 1;
+    var box = document.getElementById('click-area-box');
+    var ft = document.createElement('div'); ft.className='floating-text';
+    ft.innerText = "+" + fmt(clickVal); box.appendChild(ft);
+    setTimeout(function(){ if(ft.parentNode) ft.parentNode.removeChild(ft); }, 800);
+    playSound('click'); checkEmoteUnlocks(); checkAchievements(); saveGame(); render();
+  }
+
+  function buyUpgrade(cat, uid) {
+    var upg = UPGRADES[cat], u = null;
+    for (var i=0;i<upg.length;i++) { if(upg[i].id===uid){u=upg[i];break;} }
+    if (!u) return;
+    var cost = getUpgradeCost(u, cat);
+    if (gs[u.currency] >= cost) {
+      gs[u.currency] -= cost;
+      gs[cat+'Upgrades'][uid] = (gs[cat+'Upgrades'][uid]||0) + 1;
+      playSound('levelup'); checkAchievements(); saveGame(); render();
+    }
+  }
+
+  function doPrestigeReset() {
+    if (gs.totalViewers < 1000000) return;
+    playSound('raid');
+    var cc=gs.totalClicks, cp=gs.prestige, se=gs.unlockedEmotes.slice(), sa=gs.unlockedAchievements.slice();
+    gs = makeDefaultGs();
+    gs.totalClicks = cc; gs.prestige = cp+1; gs.unlockedEmotes = se; gs.unlockedAchievements = sa;
+    chatList = []; hypeTrain = null;
+    clearTimeout(nextChatTimer);
+    document.getElementById('chat-lines-container').innerHTML = '<div style="color:#555;font-size:12px;">Le chat attend...</div>';
+    document.getElementById('chat-box').style.display = 'none';
+    document.getElementById('hype-banner').style.display = 'none';
+    checkAchievements(); saveGame(); render();
+  }
+
+  function checkEmoteUnlocks() {
+    for (var i=0;i<EMOTES.length;i++) {
+      var e = EMOTES[i];
+      if (gs.totalClicks >= e.unlock && gs.unlockedEmotes.indexOf(e.id)===-1) {
+        gs.unlockedEmotes.push(e.id);
+        addNotif(e.emoji + " Emote debloquee : " + e.name + " !", '#30d158');
+        playSound('emote');
       }
-      checkAchievements(); saveGame(); render();
-    },50);
+    }
+  }
 
-    setInterval(()=>{
-      if (!gs.isLive) return;
-      const rand=Math.random();
-      if (rand<0.18&&gs.totalViewers>30) {
-        const name=NAMES[Math.floor(Math.random()*NAMES.length)], months=Math.floor(Math.random()*12)+1;
-        addNotif(`💜 ${name} s'est abonné${months>1?` (${months} mois)`:'`'}`,'#9147ff');
-        gs.subs+=1; gs.totalSubs+=1; playSound('sub');
-      } else if (rand<0.26&&gs.totalViewers>150) {
-        const amounts=[2,5,10,20,50,100], amount=amounts[Math.floor(Math.random()*amounts.length)];
-        const name=NAMES[Math.floor(Math.random()*NAMES.length)];
-        addNotif(`💰 ${name} a donné ${amount}€ — "${DON_MSGS[Math.floor(Math.random()*DON_MSGS.length)]}"`,'#ff9f0a');
-        gs.donations+=amount; gs.totalDonations+=amount; playSound('donation');
-      } else if (rand<0.3&&gs.totalViewers>400) {
-        const v=Math.floor(Math.random()*300)+50, name=NAMES[Math.floor(Math.random()*NAMES.length)];
-        addNotif(`⚡ RAID de ${name} avec ${v} viewers !`,'#ff3b30');
-        gs.viewers+=v; gs.totalViewers+=v; playSound('raid');
-      } else if (rand<0.33&&gs.totalViewers>800&&!hypeTrain) {
-        hypeTrain={mult:5,left:15000}; addNotif(`🚂 HYPE TRAIN x5 — 15 secondes !`,'#ff9f0a'); playSound('hype');
+  function checkAchievements() {
+    for (var i=0;i<ACHIEVEMENTS.length;i++) {
+      var a = ACHIEVEMENTS[i];
+      if (a.check(gs) && gs.unlockedAchievements.indexOf(a.id)===-1) {
+        gs.unlockedAchievements.push(a.id);
+        showAchievementPopup(a); playSound('levelup');
       }
-    },3000);
+    }
+  }
 
-    const generateChatLine = () => {
-      if (!gs.isLive) return;
-      const lc=document.getElementById('chat-lines-container');
-      if (chatList.length===0) lc.innerHTML='';
-      const nl={user:NAMES[Math.floor(Math.random()*NAMES.length)],text:CHAT_MSGS[Math.floor(Math.random()*CHAT_MSGS.length)]};
-      chatList.push(nl); if (chatList.length>30) chatList.shift();
-      const div=document.createElement('div'); div.className='chat-line';
-      div.innerHTML=`<span class="chat-user">${nl.user}</span><span class="chat-text">: ${nl.text}</span>`;
-      lc.appendChild(div); lc.scrollTop=lc.scrollHeight; setupChatLoop();
-    };
-    const setupChatLoop = () => {
-      clearTimeout(nextChatTimer); if (!gs.isLive) return;
-      const speed=Math.max(250,2500-Math.floor(getRates().vps)*6);
-      nextChatTimer=setTimeout(generateChatLine,speed);
-    };
+  setInterval(function() {
+    if (!gs.isLive) return;
+    var rates = getRates(); var hm = hypeTrain ? hypeTrain.mult : 1;
+    gs.viewers += (rates.vps*hm)/20; gs.totalViewers += (rates.vps*hm)/20;
+    gs.subs += rates.sps/20; gs.totalSubs += rates.sps/20;
+    gs.donations += rates.dps/20; gs.totalDonations += rates.dps/20;
+    gs.liveTime += 50;
+    if (hypeTrain) {
+      hypeTrain.left -= 50;
+      var banner = document.getElementById('hype-banner');
+      if (hypeTrain.left <= 0) { hypeTrain=null; banner.style.display='none'; }
+      else { banner.style.display='block'; banner.innerText="🚂 HYPE TRAIN x"+hypeTrain.mult+" — "+(hypeTrain.left/1000).toFixed(1)+"s"; }
+    }
+    checkAchievements(); saveGame(); render();
+  }, 50);
 
-    document.getElementById('main-click-btn').onclick=handleMainClick;
-    document.getElementById('prestige-btn').onclick=doPrestigeReset;
-    document.getElementById('sound-btn').onclick=()=>{
-      soundOn=!soundOn;
-      document.getElementById('sound-btn').innerText=soundOn?"🔊":"🔇";
-      document.getElementById('sound-btn').style.color=soundOn?"#efeff1":"#555";
-    };
-    const switchTab=(t)=>{
-      document.getElementById(`tab-${currentTab}`).classList.remove('active',currentTab);
-      currentTab=t; document.getElementById(`tab-${currentTab}`).classList.add('active',currentTab); render();
-    };
-    document.getElementById('tab-setup').onclick=()=>switchTab('setup');
-    document.getElementById('tab-community').onclick=()=>switchTab('community');
-    document.getElementById('tab-business').onclick=()=>switchTab('business');
+  setInterval(function() {
+    if (!gs.isLive) return;
+    var rand = Math.random();
+    var name = NAMES[Math.floor(Math.random()*NAMES.length)];
+    if (rand < 0.18 && gs.totalViewers > 30) {
+      var months = Math.floor(Math.random()*12)+1;
+      var subTxt = months > 1 ? " (" + months + " mois)" : "";
+      addNotif("💜 " + name + " s'est abonne" + subTxt, '#9147ff');
+      gs.subs += 1; gs.totalSubs += 1; playSound('sub');
+    } else if (rand < 0.26 && gs.totalViewers > 150) {
+      var amounts=[2,5,10,20,50,100];
+      var amount = amounts[Math.floor(Math.random()*amounts.length)];
+      var dmsg = DON_MSGS[Math.floor(Math.random()*DON_MSGS.length)];
+      addNotif("💰 " + name + " a donne " + amount + "€ — " + dmsg, '#ff9f0a');
+      gs.donations += amount; gs.totalDonations += amount; playSound('donation');
+    } else if (rand < 0.3 && gs.totalViewers > 400) {
+      var v = Math.floor(Math.random()*300)+50;
+      addNotif("⚡ RAID de " + name + " avec " + v + " viewers !", '#ff3b30');
+      gs.viewers += v; gs.totalViewers += v; playSound('raid');
+    } else if (rand < 0.33 && gs.totalViewers > 800 && !hypeTrain) {
+      hypeTrain = { mult:5, left:15000 };
+      addNotif("🚂 HYPE TRAIN x5 — 15 secondes !", '#ff9f0a'); playSound('hype');
+    }
+  }, 3000);
 
-    loadGame(); render();
-  </script>
+  function generateChatLine() {
+    if (!gs.isLive) return;
+    var lc = document.getElementById('chat-lines-container');
+    if (chatList.length === 0) lc.innerHTML = '';
+    var nl = { user:NAMES[Math.floor(Math.random()*NAMES.length)], text:CHAT_MSGS[Math.floor(Math.random()*CHAT_MSGS.length)] };
+    chatList.push(nl); if (chatList.length > 30) chatList.shift();
+    var div = document.createElement('div'); div.className='chat-line';
+    div.innerHTML = '<span class="chat-user">'+nl.user+'</span><span class="chat-text">: '+nl.text+'</span>';
+    lc.appendChild(div); lc.scrollTop = lc.scrollHeight; setupChatLoop();
+  }
+
+  function setupChatLoop() {
+    clearTimeout(nextChatTimer); if (!gs.isLive) return;
+    var speed = Math.max(250, 2500 - Math.floor(getRates().vps)*6);
+    nextChatTimer = setTimeout(generateChatLine, speed);
+  }
+
+  function switchTab(t) {
+    document.getElementById('tab-'+currentTab).classList.remove('active',currentTab);
+    currentTab = t;
+    document.getElementById('tab-'+currentTab).classList.add('active',currentTab);
+    render();
+  }
+
+  // BOUTON COMMENCER
+  document.getElementById('start-btn').onclick = function() {
+    loadGame();
+    showGameScreen();
+  };
+
+  // BOUTON NOUVELLE PARTIE
+  document.getElementById('new-game-btn').onclick = function() {
+    document.getElementById('confirm-overlay').style.display = 'flex';
+  };
+  document.getElementById('confirm-yes').onclick = function() {
+    document.getElementById('confirm-overlay').style.display = 'none';
+    resetGame();
+    showStartScreen();
+  };
+  document.getElementById('confirm-no').onclick = function() {
+    document.getElementById('confirm-overlay').style.display = 'none';
+  };
+
+  document.getElementById('main-click-btn').onclick = handleMainClick;
+  document.getElementById('prestige-btn').onclick = doPrestigeReset;
+  document.getElementById('sound-btn').onclick = function() {
+    soundOn = !soundOn;
+    document.getElementById('sound-btn').innerText = soundOn ? "🔊" : "🔇";
+    document.getElementById('sound-btn').style.color = soundOn ? "#efeff1" : "#555";
+  };
+  document.getElementById('tab-setup').onclick = function(){ switchTab('setup'); };
+  document.getElementById('tab-community').onclick = function(){ switchTab('community'); };
+  document.getElementById('tab-business').onclick = function(){ switchTab('business'); };
+
+  // Init — toujours montrer le start screen
+  showStartScreen();
+</script>
 </body>
 </html>
